@@ -40,7 +40,7 @@ pub enum RecoveryView {
 }
 
 /// The manual's rule of thumb: grade = 6 - (10 × (P1 - P2) / P1)², limited to 1.0..=6.0.
-fn grade_x10(p1: u16, difference: u16) -> u16 {
+pub(crate) fn grade_x10(p1: u16, difference: u16) -> u16 {
     let ratio = 10.0 * f64::from(difference.min(p1)) / f64::from(p1.max(1));
     ((6.0 - ratio * ratio).clamp(1.0, 6.0) * 10.0).round() as u16
 }

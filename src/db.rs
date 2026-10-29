@@ -793,6 +793,39 @@ impl Db {
         Ok(())
     }
 
+    /// Like `add_sample` for many samples, in one transaction.
+    pub fn add_samples(&self, ride_id: i64, samples: &[Sample]) -> Result<()> {
+        let mut conn = self.conn();
+        let tx = conn.transaction()?;
+        {
+            let mut stmt = tx.prepare(
+                "INSERT INTO samples (ride_id, ride_secs, pulse, rpm, speed_x10, distance, \
+                 status_target_watts, energy, elapsed_secs, actual_watts, target_watts, unix_ms, strap_pulse) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+            )?;
+            for sample in samples {
+                let s = &sample.status;
+                stmt.execute(params![
+                    ride_id,
+                    sample.ride_secs,
+                    s.pulse,
+                    s.rpm,
+                    s.speed_x10,
+                    s.distance,
+                    s.target_watts,
+                    s.energy,
+                    s.elapsed_secs,
+                    s.actual_watts,
+                    sample.target_watts,
+                    sample.at_unix_ms,
+                    sample.strap_pulse
+                ])?;
+            }
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
     pub fn add_recovery(&self, ride_id: i64, r: &Recovery) -> Result<()> {
         self.conn().execute(
             "INSERT INTO recoveries (ride_id, ride_secs, pulse_start, difference, grade_x10, unix_ms, source) \
@@ -1004,6 +1037,22 @@ mod tests {
                 }],
             }],
         }
+    }
+
+    #[test]
+    fn add_samples_matches_add_sample() {
+        let db = open_in_memory().unwrap();
+        let bob = db.add_person("Bob").unwrap();
+        let (one, _) = db.start_ride(bob, None, 1_000).unwrap();
+        let (batch, _) = db.start_ride(bob, None, 2_000).unwrap();
+        let samples: Vec<Sample> = (1..=5)
+            .map(|i| Sample { at_unix_ms: Some(1_000 * i64::from(i)), strap_pulse: Some(100 + i as u16), ..sample(i, 90, 100 + i as u16) })
+            .collect();
+        for s in &samples {
+            db.add_sample(one, s).unwrap();
+        }
+        db.add_samples(batch, &samples).unwrap();
+        assert_eq!(db.get_ride(one).unwrap().unwrap().samples, db.get_ride(batch).unwrap().unwrap().samples);
     }
 
     fn sample(secs: u32, pulse: u16, watts: u16) -> Sample {

@@ -17,6 +17,7 @@ mod monitor;
 mod adapter;
 mod hrm;
 mod strap;
+mod demo;
 #[cfg(target_os = "linux")]
 mod strap_bluez;
 
@@ -57,6 +58,12 @@ enum Command {
         #[arg(long, default_value_t = 70)]
         rpm: u32,
     },
+    /// Write a new demo database with Bob and Alice (for screenshots)
+    #[command(hide = true)]
+    DemoData {
+        #[arg(long)]
+        db: PathBuf,
+    },
 }
 
 /// The clap command; `kettler --version` prints the same version and commit as GET /api/version.
@@ -77,6 +84,7 @@ async fn main() -> anyhow::Result<()> {
         Command::Server { listen } => server(listen.parse()?).await,
         Command::Bridge { port, listen, keys_listen } => bridge::run(port, listen.parse()?, keys_listen.parse()?).await,
         Command::Simulate { listen, rpm } => sim::serve_tcp(listen.parse()?, rpm.try_into()?).await,
+        Command::DemoData { db } => demo::generate(&db, monitor::now_ms() / 1000),
     }
 }
 

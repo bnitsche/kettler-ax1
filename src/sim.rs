@@ -1,6 +1,7 @@
 //! Simulated Kettler AX1 ergometer, usable in-process (duplex) or over TCP.
 
 use std::net::SocketAddr;
+use std::sync::atomic::{AtomicU16, Ordering};
 use std::sync::{Arc, Mutex, Weak};
 use std::time::Duration;
 
@@ -12,6 +13,48 @@ use crate::protocol::{DeviceLimits, LineReader};
 
 /// Maximum change of the actual watts per second.
 const RAMP_WATTS_PER_SEC: f32 = 15.0;
+
+/// Pulse of the running lively simulation (0 = none), for the simulated chest strap.
+static SIM_PULSE: AtomicU16 = AtomicU16::new(0);
+
+/// The pulse of the lively in-process simulation, if one is running. Tests get `None`:
+/// they run in parallel, so they hand the strap simulation its pulse source directly.
+pub fn current_pulse() -> Option<u16> {
+    if cfg!(test) {
+        return None;
+    }
+    Some(SIM_PULSE.load(Ordering::Relaxed)).filter(|&p| p > 0)
+}
+
+/// A heart rate that follows the power with a delay (first-order lag).
+#[derive(Debug, Clone, Copy)]
+pub struct HeartModel {
+    rest: f64,
+    bpm: f64,
+}
+
+impl HeartModel {
+    /// Seconds until the pulse has covered about two thirds of a change.
+    const TIME_CONSTANT_SECS: f64 = 30.0;
+    /// Pulse increase per watt above rest.
+    const BPM_PER_WATT: f64 = 0.45;
+    /// The pulse does not climb above this, however hard the ride.
+    const MAX_BPM: f64 = 185.0;
+
+    pub fn new(rest: f64) -> Self {
+        Self { rest, bpm: rest }
+    }
+
+    /// Moves `secs` towards the pulse for `watts`; without pedalling towards rest.
+    pub fn step(&mut self, watts: f64, pedalling: bool, secs: f64) {
+        let goal = if pedalling { (self.rest + Self::BPM_PER_WATT * watts).min(Self::MAX_BPM) } else { self.rest };
+        self.bpm += (goal - self.bpm) * (1.0 - (-secs / Self::TIME_CONSTANT_SECS).exp());
+    }
+
+    pub fn bpm(&self) -> f64 {
+        self.bpm
+    }
+}
 
 #[derive(Debug)]
 pub struct SimErgometer {
@@ -25,6 +68,11 @@ pub struct SimErgometer {
     distance: f32,
     /// Metabolic energy in kJ (mechanical kJ x 4, as measured on the device).
     energy: f32,
+    /// Cadence wobbles around `rpm` and the pulse field follows the load (for `sim://`).
+    lively: bool,
+    /// Seconds since the start, for the wobble.
+    clock: f32,
+    heart: HeartModel,
 }
 
 impl SimErgometer {
@@ -39,7 +87,14 @@ impl SimErgometer {
             elapsed: 0.0,
             distance: 0.0,
             energy: 0.0,
+            lively: false,
+            clock: 0.0,
+            heart: HeartModel::new(60.0),
         }
+    }
+
+    pub fn set_lively(&mut self, on: bool) {
+        self.lively = on;
     }
 
     pub fn set_rpm(&mut self, rpm: u16) {
@@ -52,8 +107,27 @@ impl SimErgometer {
         self.target = self.limits.clamp(i32::from(self.target) + i32::from(delta));
     }
 
+    /// The cadence the cockpit reports: `rpm`, wobbling by up to ±4 when lively.
+    fn cadence(&self) -> u16 {
+        if !self.lively || self.rpm == 0 {
+            return self.rpm;
+        }
+        let t = f64::from(self.clock);
+        let wobble = 3.0 * (t / 17.0).sin() + 1.5 * (t / 5.0).sin();
+        (f64::from(self.rpm) + wobble).round().max(1.0) as u16
+    }
+
+    /// The pulse field: 0 like a cockpit without a receiver, unless lively.
+    fn pulse(&self) -> u16 {
+        if !self.lively {
+            return 0;
+        }
+        let wobble = 2.0 * (f64::from(self.clock) / 7.0).sin();
+        (self.heart.bpm() + wobble).round() as u16
+    }
+
     fn speed_x10(&self) -> u16 {
-        (u32::from(self.rpm) * 35 / 10).min(u32::from(u16::MAX)) as u16
+        (u32::from(self.cadence()) * 35 / 10).min(u32::from(u16::MAX)) as u16
     }
 
     pub fn tick(&mut self, secs: f32) {
@@ -67,14 +141,18 @@ impl SimErgometer {
             self.actual = (self.actual - RAMP_WATTS_PER_SEC * secs).max(0.0);
         }
         self.energy += self.actual * secs / 1000.0 * 4.0;
+        if self.lively {
+            self.clock += secs;
+            self.heart.step(f64::from(self.actual), self.rpm > 0, f64::from(secs));
+        }
     }
 
     fn status_line(&self) -> String {
         let secs = self.elapsed as u32;
         format!(
             "{:03}\t{:03}\t{:03}\t{:03}\t{:03}\t{:04}\t{:02}:{:02}\t{:03}",
-            0,
-            self.rpm,
+            self.pulse(),
+            self.cadence(),
             self.speed_x10(),
             self.distance as u32,
             self.target,
@@ -130,8 +208,13 @@ fn spawn_ticker(sim: Weak<Mutex<SimErgometer>>) {
         loop {
             interval.tick().await;
             let Some(sim) = sim.upgrade() else { break };
-            sim.lock().unwrap().tick(1.0);
+            let mut sim = sim.lock().unwrap();
+            sim.tick(1.0);
+            if sim.lively {
+                SIM_PULSE.store(sim.pulse(), Ordering::Relaxed);
+            }
         }
+        SIM_PULSE.store(0, Ordering::Relaxed);
     });
 }
 
@@ -277,6 +360,82 @@ mod tests {
         s.handle("PW 80");
         s.press_cockpit(5);
         assert_eq!(parse_status(&s.handle("ST").unwrap()).unwrap().target_watts, 85);
+    }
+    fn lively_at(watts: u16) -> SimErgometer {
+        let mut s = SimErgometer::new();
+        s.set_rpm(88);
+        s.set_lively(true);
+        s.handle("CM");
+        s.handle(&format!("PW {watts}"));
+        s
+    }
+    fn status(s: &mut SimErgometer) -> crate::protocol::Status {
+        parse_status(&s.handle("ST").unwrap()).unwrap()
+    }
+    #[test]
+    fn lively_cadence_stays_in_band() {
+        let mut s = lively_at(100);
+        let mut seen = std::collections::BTreeSet::new();
+        for _ in 0..600 {
+            s.tick(1.0);
+            let rpm = status(&mut s).rpm;
+            assert!((84..=92).contains(&rpm), "{rpm}");
+            seen.insert(rpm);
+        }
+        assert!(seen.len() >= 3, "{seen:?}");
+    }
+    #[test]
+    fn pulse_follows_load() {
+        let mut s = lively_at(170);
+        for _ in 0..300 {
+            s.tick(1.0);
+        }
+        let high = status(&mut s).pulse;
+        assert!((128..=144).contains(&high), "{high}");
+        s.handle("PW 60");
+        for _ in 0..300 {
+            s.tick(1.0);
+        }
+        let low = status(&mut s).pulse;
+        assert!(low < 100, "{low}");
+    }
+    #[test]
+    fn pulse_stays_below_max() {
+        let mut s = lively_at(400);
+        for _ in 0..600 {
+            s.tick(1.0);
+            let pulse = status(&mut s).pulse;
+            assert!(pulse <= 187, "{pulse}");
+        }
+    }
+    #[test]
+    fn pulse_relaxes_at_rest() {
+        let mut s = lively_at(170);
+        for _ in 0..300 {
+            s.tick(1.0);
+        }
+        let before = status(&mut s).pulse;
+        s.set_rpm(0);
+        s.tick(1.0);
+        let after = status(&mut s).pulse;
+        assert!(before.abs_diff(after) <= 3, "{before} -> {after}");
+        for _ in 0..300 {
+            s.tick(1.0);
+        }
+        let rest = status(&mut s).pulse;
+        assert!(rest < 75, "{rest}");
+    }
+    #[test]
+    fn plain_sim_unchanged() {
+        let mut s = SimErgometer::new();
+        s.set_rpm(70);
+        s.handle("CM");
+        s.handle("PW 150");
+        for _ in 0..120 {
+            s.tick(1.0);
+            let st = status(&mut s);
+            assert_eq!((st.rpm, st.pulse), (70, 0));
+        }
     }
     #[tokio::test]
     async fn duplex_answers_commands() {

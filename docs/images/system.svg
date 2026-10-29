@@ -1,0 +1,256 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 100 1200 480" width="1200" height="480" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Kettler AX1 training server: devices and connections</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#e6ecf3"/>
+    </linearGradient>
+    <linearGradient id="alu" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9ecf0"/>
+      <stop offset="0.5" stop-color="#c7ccd3"/>
+      <stop offset="1" stop-color="#a3a9b2"/>
+    </linearGradient>
+    <linearGradient id="aluTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f6f8"/>
+      <stop offset="1" stop-color="#d5d9df"/>
+    </linearGradient>
+    <linearGradient id="slate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a3f47"/>
+      <stop offset="1" stop-color="#16181c"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbfbfc"/>
+      <stop offset="1" stop-color="#cfd3d9"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9aa1aa"/>
+      <stop offset="0.5" stop-color="#e2e5e9"/>
+      <stop offset="1" stop-color="#8d949d"/>
+    </linearGradient>
+    <linearGradient id="lcd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9c7a4"/>
+      <stop offset="1" stop-color="#97a883"/>
+    </linearGradient>
+    <linearGradient id="blueStick" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3d7be0"/>
+      <stop offset="1" stop-color="#1d4fa8"/>
+    </linearGradient>
+    <linearGradient id="adapter" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4f57"/>
+      <stop offset="1" stop-color="#25282d"/>
+    </linearGradient>
+    <linearGradient id="laptopLid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d8dce2"/>
+      <stop offset="1" stop-color="#b1b7c0"/>
+    </linearGradient>
+    <radialGradient id="shadow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#000" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4c5a6b"/>
+    </marker>
+  </defs>
+
+  <rect y="100" width="1200" height="480" rx="18" fill="url(#bg)"/>
+
+  <!-- ===== Connections (drawn first, devices on top) ===== -->
+  <g fill="none" stroke-linecap="round">
+    <!-- Wi-Fi: tablets to server -->
+    <path d="M372,250 C440,250 470,262 528,262" stroke="#4c5a6b" stroke-width="2.5" stroke-dasharray="2 7" marker-end="url(#arrow)"/>
+    <!-- USB from adapter to mini PC -->
+    <path d="M705,276 C735,276 745,300 776,300" stroke="#2a2d33" stroke-width="4"/>
+    <!-- RS232 from adapter to cockpit -->
+    <path d="M846,300 C890,300 900,260 944,244" stroke="#59606a" stroke-width="5"/>
+    <!-- Alternative: bridge PC -->
+    <path d="M834,316 C770,340 670,390 634,452" stroke="#8a6d3b" stroke-width="2.5" stroke-dasharray="9 7"/>
+    <path d="M494,446 C440,410 470,330 540,300" stroke="#8a6d3b" stroke-width="2.5" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- ===== iPad (landscape) ===== -->
+  <g>
+    <ellipse cx="190" cy="352" rx="160" ry="10" fill="url(#shadow)"/>
+    <rect x="40" y="130" width="300" height="212" rx="22" fill="url(#slate)"/>
+    <rect x="43" y="133" width="294" height="206" rx="19" fill="none" stroke="#5b616b" stroke-width="1.5"/>
+    <rect x="56" y="146" width="268" height="180" rx="7" fill="#0f1115"/>
+    <!-- chart panel -->
+    <rect x="62" y="152" width="256" height="52" rx="4" fill="#1b1f26"/>
+    <path d="M66,198 L82,192 L98,186 L114,180 L114,176 L134,176 L134,170 L154,170 L154,164 L174,164 L174,158 L194,158 L194,164 L214,164 L214,170 L234,170 L234,176 L254,176 L254,188 L314,188" fill="none" stroke="#7fb2ff" stroke-width="1.6"/>
+    <path d="M66,198 L82,192 L98,186 L114,180 L114,176 L134,176 L134,170 L154,170 L154,164 L174,164 L174,158 L184,158" fill="none" stroke="#ffffff" stroke-width="1.3"/>
+    <path d="M66,192 C100,186 140,178 184,170" fill="none" stroke="#ff7b7b" stroke-width="1.2"/>
+    <line x1="184" y1="154" x2="184" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+    <!-- tiles -->
+    <rect x="62" y="210" width="62" height="24" rx="3" fill="#1b1f26"/>
+    <text x="68" y="229" font-size="15" font-weight="700" fill="#f1f3f5">87</text>
+    <rect x="62" y="238" width="62" height="24" rx="3" fill="#1b1f26"/>
+    <text x="68" y="257" font-size="15" font-weight="700" fill="#ff7b7b">133</text>
+    <rect x="62" y="266" width="62" height="24" rx="3" fill="#1b1f26"/>
+    <rect x="62" y="294" width="62" height="26" rx="3" fill="#1b1f26"/>
+    <!-- power ring -->
+    <circle cx="190" cy="265" r="44" fill="none" stroke="#262b33" stroke-width="9"/>
+    <path d="M190,221 A44,44 0 1 1 155,292" fill="none" stroke="#7fb2ff" stroke-width="9" stroke-linecap="round"/>
+    <text x="190" y="272" font-size="24" font-weight="800" fill="#f1f3f5" text-anchor="middle">170</text>
+    <text x="190" y="287" font-size="8" font-weight="700" fill="#7fb2ff" text-anchor="middle">Ziel 170 W</text>
+    <!-- buttons -->
+    <rect x="256" y="210" width="62" height="30" rx="4" fill="#232830"/>
+    <text x="287" y="231" font-size="16" font-weight="700" fill="#e9ecef" text-anchor="middle">+</text>
+    <rect x="256" y="244" width="62" height="22" rx="4" fill="#232830"/>
+    <rect x="256" y="270" width="62" height="30" rx="4" fill="#232830"/>
+    <text x="287" y="291" font-size="16" font-weight="700" fill="#e9ecef" text-anchor="middle">−</text>
+    <rect x="256" y="304" width="62" height="16" rx="4" fill="none" stroke="#ff8a8a" stroke-width="1"/>
+    <rect x="56" y="146" width="268" height="180" rx="7" fill="url(#glass)"/>
+    <circle cx="48" cy="236" r="2.2" fill="#2a2e35"/>
+  </g>
+
+  <!-- ===== iPhone (portrait), in front of the iPad ===== -->
+  <g>
+    <ellipse cx="350" cy="402" rx="52" ry="6" fill="url(#shadow)"/>
+    <rect x="304" y="218" width="94" height="184" rx="16" fill="url(#slate)"/>
+    <rect x="310" y="224" width="82" height="172" rx="11" fill="#0f1115"/>
+    <rect x="336" y="229" width="30" height="8" rx="4" fill="#000"/>
+    <rect x="315" y="242" width="72" height="34" rx="3" fill="#1b1f26"/>
+    <path d="M318,272 L326,268 L334,264 L334,262 L344,262 L344,258 L352,258 L352,254 L358,254 L358,258 L366,258 L366,262 L374,262 L374,268 L384,268" fill="none" stroke="#7fb2ff" stroke-width="1.1"/>
+    <circle cx="351" cy="314" r="24" fill="none" stroke="#262b33" stroke-width="6"/>
+    <path d="M351,290 A24,24 0 1 1 332,329" fill="none" stroke="#7fb2ff" stroke-width="6" stroke-linecap="round"/>
+    <text x="351" y="319" font-size="14" font-weight="800" fill="#f1f3f5" text-anchor="middle">170</text>
+    <rect x="315" y="346" width="16" height="16" rx="2" fill="#1b1f26"/>
+    <rect x="334" y="346" width="16" height="16" rx="2" fill="#1b1f26"/>
+    <rect x="353" y="346" width="16" height="16" rx="2" fill="#1b1f26"/>
+    <rect x="372" y="346" width="15" height="16" rx="2" fill="#1b1f26"/>
+    <rect x="315" y="367" width="72" height="20" rx="3" fill="#232830"/>
+    <rect x="310" y="224" width="82" height="172" rx="11" fill="url(#glass)"/>
+  </g>
+  <text x="200" y="430" font-size="15" font-weight="700" fill="#26303b" text-anchor="middle">iPad / iPhone</text>
+  <text x="200" y="449" font-size="12.5" fill="#5b6775" text-anchor="middle">web app in Safari, any number of devices</text>
+  <!-- Wi-Fi symbol on the link -->
+  <g transform="translate(450,226)" fill="none" stroke="#4c5a6b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M-14,-4 A20,20 0 0 1 14,-4"/>
+    <path d="M-9,1 A13,13 0 0 1 9,1"/>
+    <circle cx="0" cy="6" r="1.8" fill="#4c5a6b" stroke="none"/>
+  </g>
+  <text x="462" y="290" font-size="12" fill="#4c5a6b" text-anchor="middle">Wi-Fi</text>
+  <text x="462" y="305" font-size="12" fill="#4c5a6b" text-anchor="middle">HTTP + WebSocket</text>
+
+  <!-- ===== Mini PC with Bluetooth stick ===== -->
+  <g>
+    <ellipse cx="616" cy="300" rx="104" ry="9" fill="url(#shadow)"/>
+    <path d="M532,232 L560,214 L716,214 L688,232 Z" fill="url(#aluTop)" stroke="#a9afb7" stroke-width="1"/>
+    <path d="M688,232 L716,214 L716,272 L688,292 Z" fill="#9aa1aa"/>
+    <rect x="532" y="232" width="156" height="60" rx="3" fill="url(#alu)" stroke="#9097a1" stroke-width="1"/>
+    <circle cx="548" cy="248" r="5" fill="#d9dde2" stroke="#7b828c" stroke-width="1.2"/>
+    <circle cx="548" cy="248" r="1.6" fill="#3fa9f5"/>
+    <rect x="566" y="244" width="14" height="7" rx="1" fill="#2d3238"/>
+    <rect x="584" y="244" width="14" height="7" rx="1" fill="#2d3238"/>
+    <rect x="604" y="245" width="5" height="5" rx="2.5" fill="#2d3238"/>
+    <g fill="#8f969f">
+      <rect x="620" y="270" width="60" height="2" rx="1"/>
+      <rect x="620" y="275" width="60" height="2" rx="1"/>
+      <rect x="620" y="280" width="60" height="2" rx="1"/>
+    </g>
+    <!-- Bluetooth stick in the front USB port -->
+    <rect x="570" y="251" width="8" height="10" fill="#9aa1aa"/>
+    <rect x="566" y="259" width="16" height="22" rx="3" fill="url(#blueStick)"/>
+    <path d="M571,265 L577,271 L574,274 L574,264 L577,267 L571,273" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- USB cable plug at the back right -->
+    <rect x="690" y="270" width="16" height="10" rx="2" fill="#2a2d33"/>
+  </g>
+  <text x="624" y="178" font-size="15" font-weight="700" fill="#26303b" text-anchor="middle">Mini PC · Docker</text>
+  <text x="624" y="197" font-size="12.5" fill="#5b6775" text-anchor="middle">kettler server: training, database, web app</text>
+
+  <!-- ===== USB serial adapter ===== -->
+  <g>
+    <rect x="776" y="292" width="44" height="18" rx="5" fill="url(#adapter)"/>
+    <rect x="782" y="297" width="10" height="3" rx="1" fill="#59d38a"/>
+    <!-- DB9 connector -->
+    <path d="M820,288 L850,288 L846,314 L824,314 Z" fill="#c9cdd3" stroke="#8b929b" stroke-width="1"/>
+    <path d="M826,293 L844,293 L841,309 L829,309 Z" fill="#3c4148"/>
+    <g fill="#d6b44c">
+      <circle cx="830" cy="298" r="1.1"/><circle cx="835" cy="298" r="1.1"/><circle cx="840" cy="298" r="1.1"/>
+      <circle cx="832" cy="304" r="1.1"/><circle cx="838" cy="304" r="1.1"/>
+    </g>
+  </g>
+  <text x="812" y="340" font-size="12" fill="#4c5a6b" text-anchor="middle">USB serial adapter</text>
+  <text x="812" y="355" font-size="12" fill="#4c5a6b" text-anchor="middle">RS232 · 9600 baud</text>
+
+  <!-- ===== Kettler AX1 ergometer (stylized side view) ===== -->
+  <g>
+    <ellipse cx="1030" cy="496" rx="150" ry="10" fill="url(#shadow)"/>
+    <!-- base with front and rear stabilizers -->
+    <rect x="900" y="474" width="262" height="12" rx="6" fill="#4a5059"/>
+    <rect x="886" y="482" width="54" height="10" rx="5" fill="#2f343a"/>
+    <rect x="1124" y="482" width="54" height="10" rx="5" fill="#2f343a"/>
+    <!-- one sweeping frame tube from the rear base up to the console -->
+    <path d="M1090,478 C1060,430 1000,360 968,232" fill="none" stroke="url(#frame)" stroke-width="22" stroke-linecap="round"/>
+    <!-- seat post and saddle -->
+    <path d="M1074,446 L1092,318" stroke="url(#frame)" stroke-width="15" stroke-linecap="round"/>
+    <path d="M1060,312 C1068,300 1118,298 1146,305 C1154,308 1152,317 1142,318 L1072,321 C1061,321 1055,317 1060,312 Z" fill="#202328"/>
+    <!-- round flywheel housing -->
+    <circle cx="985" cy="420" r="58" fill="url(#cover)" stroke="#b5bbc3" stroke-width="1.5"/>
+    <path d="M935,392 A58,58 0 0 1 1035,392" fill="none" stroke="#d2232a" stroke-width="6" stroke-linecap="round"/>
+    <text x="985" y="458" font-size="10.5" font-weight="800" fill="#d2232a" text-anchor="middle" letter-spacing="1.5">KETTLER</text>
+    <!-- crank and pedal -->
+    <circle cx="985" cy="420" r="12" fill="#c8ccd2" stroke="#7d848d" stroke-width="2"/>
+    <path d="M985,420 L1010,446" stroke="#3a3f46" stroke-width="6" stroke-linecap="round"/>
+    <rect x="1000" y="444" width="28" height="7" rx="3" fill="#202328"/>
+    <!-- handlebar towards the rider, with the keypad -->
+    <path d="M966,246 C996,242 1014,252 1022,272" fill="none" stroke="#2a2d33" stroke-width="8" stroke-linecap="round"/>
+    <path d="M1014,260 L1026,280" stroke="#111" stroke-width="11" stroke-linecap="round"/>
+    <g transform="translate(1006,252) rotate(30)">
+      <rect x="-12" y="-9" width="24" height="18" rx="5" fill="#3a3f46"/>
+      <path d="M-2,-6 h4 v4 h4 v4 h-4 v4 h-4 v-4 h-4 v-4 h4 z" fill="#c9ced6"/>
+    </g>
+    <!-- console, tilted towards the rider -->
+    <g transform="rotate(14 950 210)">
+      <rect x="910" y="182" width="80" height="54" rx="12" fill="#2c3036"/>
+      <rect x="912" y="184" width="76" height="50" rx="11" fill="none" stroke="#4a4f57" stroke-width="1.2"/>
+      <rect x="919" y="190" width="62" height="28" rx="4" fill="#c8d3bd"/>
+      <rect x="919" y="190" width="62" height="28" rx="4" fill="url(#glass)"/>
+      <text x="946" y="210" font-size="15" font-weight="700" fill="#27321f" text-anchor="middle" font-family="Consolas, monospace">170</text>
+      <text x="966" y="210" font-size="7" font-weight="700" fill="#27321f" font-family="Consolas, monospace">W</text>
+      <g fill="#8d949d">
+        <rect x="922" y="223" width="12" height="6" rx="3"/>
+        <rect x="938" y="223" width="12" height="6" rx="3"/>
+        <rect x="954" y="223" width="12" height="6" rx="3"/>
+      </g>
+      <rect x="970" y="223" width="12" height="6" rx="3" fill="#d2232a"/>
+    </g>
+  </g>
+  <text x="1030" y="530" font-size="15" font-weight="700" fill="#26303b" text-anchor="middle">Kettler AX1</text>
+  <text x="1030" y="549" font-size="12.5" fill="#5b6775" text-anchor="middle">Siemens cockpit, handlebar keypad, RS232</text>
+
+  <!-- ===== Chest strap ===== -->
+  <g>
+    <path d="M700,446 C700,420 860,420 860,446" fill="none" stroke="#1d1f23" stroke-width="9" stroke-linecap="round"/>
+    <path d="M700,446 C700,466 860,466 860,446" fill="none" stroke="#2d3036" stroke-width="9" stroke-linecap="round" opacity="0.55"/>
+    <rect x="752" y="450" width="56" height="24" rx="11" fill="#2a2d33" stroke="#4a4f57" stroke-width="1.5"/>
+    <circle cx="767" cy="462" r="4" fill="#d2232a"/>
+    <rect x="776" y="459" width="24" height="6" rx="3" fill="#6b7079"/>
+    <!-- radio waves to the Bluetooth stick -->
+    <g fill="none" stroke="#3d7be0" stroke-width="2" stroke-linecap="round">
+      <path d="M740,430 A16,16 0 0 1 752,418"/>
+      <path d="M730,428 A28,28 0 0 1 750,406"/>
+      <path d="M720,425 A40,40 0 0 1 748,394"/>
+    </g>
+    <path d="M722,392 C700,340 640,300 588,284" fill="none" stroke="#3d7be0" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round" marker-end="url(#arrow)"/>
+  </g>
+  <text x="780" y="500" font-size="15" font-weight="700" fill="#26303b" text-anchor="middle">Chest strap</text>
+  <text x="780" y="519" font-size="12.5" fill="#5b6775" text-anchor="middle">Bluetooth LE, optional</text>
+
+  <!-- ===== Alternative: Windows PC as bridge ===== -->
+  <g>
+    <ellipse cx="560" cy="510" rx="84" ry="7" fill="url(#shadow)"/>
+    <path d="M500,440 L620,440 L630,446 L630,500 L490,500 L490,446 Z" fill="url(#laptopLid)" stroke="#9aa1aa" stroke-width="1"/>
+    <rect x="498" y="446" width="124" height="48" rx="3" fill="#0f1115"/>
+    <text x="508" y="462" font-size="8" fill="#59d38a" font-family="Consolas, monospace">kettler.exe bridge</text>
+    <text x="508" y="474" font-size="8" fill="#9aa4ae" font-family="Consolas, monospace">--port COM3</text>
+    <text x="508" y="486" font-size="8" fill="#9aa4ae" font-family="Consolas, monospace">listening :4001 :4002</text>
+    <path d="M478,500 L642,500 L652,510 L468,510 Z" fill="#c3c8cf" stroke="#9aa1aa" stroke-width="1"/>
+  </g>
+  <text x="560" y="534" font-size="13" font-weight="700" fill="#8a6d3b" text-anchor="middle">or: PC at the ergometer as bridge</text>
+  <text x="560" y="552" font-size="12" fill="#8a6d3b" text-anchor="middle">TCP 4001 data · 4002 keys</text>
+
+</svg>

@@ -83,7 +83,11 @@ pub async fn open(url: &DeviceUrl) -> io::Result<Opened> {
         }
         DeviceUrl::Sim => {
             let sim = Arc::new(Mutex::new(SimErgometer::new()));
-            sim.lock().unwrap().set_rpm(70);
+            {
+                let mut sim = sim.lock().unwrap();
+                sim.set_rpm(88);
+                sim.set_lively(true);
+            }
             Ok(Opened::plain(Box::new(spawn_duplex(sim))))
         }
     }

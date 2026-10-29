@@ -228,7 +228,7 @@ impl StrapHub {
             Mode::Off => Self::new(Availability::Off, monitor, false).0,
             Mode::Sim => {
                 let (hub, backend) = Self::new(Availability::Sim, monitor, true);
-                hub.run(run_sim(backend.expect("sim backend")));
+                hub.run(run_sim(backend.expect("sim backend"), crate::sim::current_pulse));
                 hub
             }
             #[cfg(target_os = "linux")]
@@ -369,9 +369,16 @@ pub fn choose_strap(own: Option<i64>, assigned_to_others: &[i64], states: &[Stra
 
 pub const SIM_ADDRESS: &str = "00:00:00:00:00:01";
 
+/// The sim strap's pulse next to the lively ergometer's `load_pulse`: a bit below it and
+/// never the same value, so strap and ear clip can be told apart.
+fn sim_strap_bpm(load_pulse: u16, t: f64) -> u16 {
+    (f64::from(load_pulse) - 2.0 + 0.7 * (t / 4.0).sin()).round() as u16
+}
+
 /// Simulated straps: a search finds one, known straps connect after a second and send a
-/// pulse that wanders between 70 and 150.
-async fn run_sim(mut backend: Backend) {
+/// pulse. With a load pulse (the lively `sim://` ergometer) it sits just below that one,
+/// otherwise it wanders between 70 and 150.
+async fn run_sim(mut backend: Backend, load_pulse: fn() -> Option<u16>) {
     let started = Instant::now();
     let mut tick = tokio::time::interval(Duration::from_secs(1));
     tick.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
@@ -395,7 +402,10 @@ async fn run_sim(mut backend: Backend) {
             }
             _ = tick.tick() => {
                 let t = started.elapsed().as_secs_f64();
-                let bpm = (110.0 + 30.0 * (t / 20.0).sin() + 8.0 * (t / 3.0).sin()).round() as u16;
+                let bpm = match load_pulse() {
+                    Some(p) => sim_strap_bpm(p, t),
+                    None => (110.0 + 30.0 * (t / 20.0).sin() + 8.0 * (t / 3.0).sin()).round() as u16,
+                };
                 let known: Vec<i64> = backend.known.borrow().iter().map(|s| s.id).collect();
                 for &id in &known {
                     if seen.contains(&id) {
@@ -540,6 +550,44 @@ mod tests {
         let pulse = hub.states()[0].pulse.unwrap();
         assert!((70..=150).contains(&pulse), "{pulse}");
         assert!(monitor.history().iter().any(|e| e.kind == TraceKind::Link && e.text == "Gurt Sim-Gurt verbunden"));
+    }
+
+    /// A sim strap with the given load pulse source, registered as strap 7; returns its
+    /// first pulse once connected.
+    async fn sim_strap_pulse(load_pulse: fn() -> Option<u16>) -> u16 {
+        let (hub, backend) = StrapHub::new(Availability::Sim, Monitor::new(), true);
+        hub.run(run_sim(backend.expect("sim backend"), load_pulse));
+        hub.set_known(vec![strap(7)]);
+        tokio::time::timeout(Duration::from_secs(3), async {
+            loop {
+                if let Some(pulse) = hub.states().first().and_then(|s| s.pulse) {
+                    return pulse;
+                }
+                tokio::time::sleep(Duration::from_millis(50)).await;
+            }
+        })
+        .await
+        .expect("sim strap sends a pulse")
+    }
+
+    #[tokio::test]
+    async fn sim_strap_falls_back_without_sim_device() {
+        let pulse = sim_strap_pulse(|| None).await;
+        assert!((70..=150).contains(&pulse), "{pulse}");
+    }
+
+    #[tokio::test]
+    async fn sim_strap_follows_sim_pulse() {
+        let pulse = sim_strap_pulse(|| Some(140)).await;
+        assert!((137..=139).contains(&pulse), "{pulse}");
+    }
+
+    #[test]
+    fn sim_strap_never_matches_the_ear() {
+        for i in 0..2000 {
+            let pulse = sim_strap_bpm(140, f64::from(i) * 0.37);
+            assert!((137..=139).contains(&pulse), "{pulse} at {i}");
+        }
     }
 
     #[tokio::test]

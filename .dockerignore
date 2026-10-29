@@ -8,3 +8,5 @@ Links
 data
 docs
 *.db-*
+tools/screenshots/node_modules/
+tools/screenshots/demo/

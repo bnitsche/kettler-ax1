@@ -3,3 +3,5 @@
 *.log
 __pycache__/
 .playwright-mcp/
+tools/screenshots/node_modules/
+tools/screenshots/demo/
