@@ -1,0 +1,16 @@
+# Zusatz für den Brustgurt: der Server spricht BlueZ auf dem Docker-Host über D-Bus an.
+# Zusammen mit compose.yaml laden (Komodo: weitere Datei "compose.bluetooth.yaml";
+# von Hand: docker compose -f compose.yaml -f compose.bluetooth.yaml up -d).
+# Auf dem Host vorher (siehe README, Abschnitt Brustgurt): bluez installieren und den
+# Nutzer des Containers bekannt machen, damit D-Bus ihn zu BlueZ lässt:
+#   sudo useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin kettler
+#   sudo usermod -aG bluetooth kettler
+# Auf Ubuntu und Linux Mint sperrt Dockers AppArmor-Profil D-Bus; dort das Profil
+# apparmor/kettler-bluez laden und KETTLER_APPARMOR=kettler-bluez setzen.
+# Keine zusätzlichen Rechte für den Container, nur der Socket.
+services:
+  kettler:
+    volumes:
+      - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+    security_opt:
+      - apparmor=${KETTLER_APPARMOR:-docker-default}

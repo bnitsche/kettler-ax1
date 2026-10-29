@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kettler AX1">
+  <meta name="theme-color" content="#0e1013">
+  <title>Kettler AX1</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-512.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <nav id="menu" class="menu" aria-label="Hauptmenü">
+    <span class="brand">Kettler AX1</span>
+    <a href="#/riders" data-section="riders"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l4-8h5l3 8M10 9L8.5 6H6M15 9l-1-3h-2"/></svg><span>Training</span></a>
+    <a href="#/programs" data-section="programs"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Programme</span></a>
+    <a href="#/history" data-section="history"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 5-7"/></svg><span>Verlauf</span></a>
+    <span class="menu-disabled" aria-disabled="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 14v6h14v-6"/></svg><span class="wide-only">Export (Garmin/Strava)</span><span class="phone-only">Export</span> <small><span class="wide-only">kommt später</span><span class="phone-only">bald</span></small></span>
+    <a href="#/service" data-section="service" class="menu-service" title="Service" aria-label="Service"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8z"/></svg><span class="phone-only">Service</span></a>
+    <span class="menu-version" id="menu-version" hidden></span>
+  </nav>
+  <main id="app"></main>
+  <noscript><p>Diese App braucht JavaScript.</p></noscript>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Zum lokalen Bauen (build: .). Für den Betrieb mit fertigem Image aus GHCR (z. B. Komodo): deploy/compose.yml.
+services:
+  kettler:
+    build: .
+    image: kettler
+    restart: unless-stopped
+    # Leitet SIGTERM von docker stop an den Server weiter: Er beendet die Fahrt und setzt 25 W.
+    init: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      # Voreinstellung: Variante B (Bridge auf dem PC am Ergometer). IP anpassen!
+      - KETTLER_DEVICE=tcp://192.168.1.50:4001
+      # Variante A1/A2 (Server direkt am Ergometer, USB-Adapter im Docker-Host bzw. im LXC auf Proxmox).
+      # Die Zeile oben durch diese ersetzen und den devices-Block unten aktivieren.
+      # - KETTLER_DEVICE=serial:///dev/ttyUSB0
+      # Weitere Hostnamen (kommagetrennt, ohne Port), z. B. hinter einem Reverse-Proxy:
+      # - KETTLER_ALLOWED_HOSTS=kettler.example.org
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0

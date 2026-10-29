@@ -1,0 +1,5 @@
+/target/
+.superpowers/
+*.log
+__pycache__/
+.playwright-mcp/

@@ -1,0 +1,34 @@
+# Compose-Datei für den Betrieb (z. B. Komodo): zieht das fertige Image aus GHCR.
+# Zum lokalen Bauen siehe ../docker-compose.yml.
+services:
+  kettler:
+    image: ghcr.io/bnitsche/kettler-ax1:${KETTLER_TAG:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    # Der Server behandelt SIGTERM selbst (Fahrt beenden, 25 W setzen); init sorgt nur dafür,
+    # dass Signale sauber weitergereicht und Zombie-Prozesse aufgeräumt werden.
+    init: true
+    # Härtung: keine Linux-Capabilities, keine Rechteausweitung, Dateisystem nur lesbar (außer /data).
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    ports:
+      - "${KETTLER_PORT:-8080}:8080"
+    volumes:
+      # Benanntes Volume: braucht kein chown (Sicherung siehe README).
+      - kettler-data:/data
+    environment:
+      # Pflicht, z. B. tcp://192.168.1.50:4001 (Bridge) oder serial:///dev/ttyUSB0
+      - KETTLER_DEVICE=${KETTLER_DEVICE:?KETTLER_DEVICE setzen}
+      # Weitere Hostnamen (kommagetrennt, ohne Port), z. B. hinter einem Reverse-Proxy
+      - KETTLER_ALLOWED_HOSTS=${KETTLER_ALLOWED_HOSTS:-}
+      # Tastenfeld: leer = automatisch, off = keine Tasten, tcp://host:port = diese Adresse
+      - KETTLER_KEYS=${KETTLER_KEYS:-}
+      # Brustgurt: leer = automatisch (BlueZ, braucht compose.bluetooth.yaml), off, sim = simuliert
+      - KETTLER_BLUETOOTH=${KETTLER_BLUETOOTH:-}
+    # Variante A (USB-Adapter direkt im Docker-Host): zusätzlich compose.serial.yaml laden.
+    # Brustgurt über Bluetooth: zusätzlich compose.bluetooth.yaml laden (siehe README).
+
+volumes:
+  kettler-data:
+    name: kettler-data

@@ -1,0 +1,10 @@
+target
+.git
+.superpowers
+.playwright-mcp
+Links
+*.log
+*.db
+data
+docs
+*.db-*

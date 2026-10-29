@@ -1,0 +1,14 @@
+# Zusatz für Variante A: USB-Seriell-Adapter steckt direkt im Docker-Host.
+# Zusammen mit compose.yaml laden (Komodo: File Paths "compose.yaml" und "compose.serial.yaml";
+# von Hand: docker compose -f compose.yaml -f compose.serial.yaml up -d) und
+# KETTLER_DEVICE=serial:///dev/ttyUSB0 setzen.
+# KETTLER_SERIAL ist der Pfad auf dem Host, am besten der feste aus /dev/serial/by-id/.
+# Im Container heißt das Gerät immer /dev/ttyUSB0.
+services:
+  kettler:
+    devices:
+      - ${KETTLER_SERIAL:-/dev/ttyUSB0}:/dev/ttyUSB0
+    # Gruppe dialout (gid 20 unter Debian); bei anderer Gruppe des Geräts
+    # (stat -c %g /dev/ttyUSB0) KETTLER_SERIAL_GID setzen.
+    group_add:
+      - "${KETTLER_SERIAL_GID:-20}"
