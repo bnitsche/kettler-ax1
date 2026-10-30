@@ -801,7 +801,7 @@ dependencies = [
 
 [[package]]
 name = "kettler"
-version = "1.5.6"
+version = "1.5.10"
 dependencies = [
  "anyhow",
  "axum",

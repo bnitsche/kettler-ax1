@@ -720,6 +720,22 @@ main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .ride.big-view .future { display: inline; }
 .chart-head-end { display: inline-flex; align-items: baseline; gap: 12px; white-space: nowrap; }
 .keypad-mark { font-size: 13px; }
+.ride-service { display: inline-flex; align-self: center; padding: 2px; margin: -2px; color: var(--muted); }
+.ride-sound { display: inline-flex; align-self: center; padding: 2px; margin: -2px; border: 0; background: none; color: var(--ok); cursor: pointer; }
+.ride-sound .ico { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* Green: announcement and beeps, blue: beeps only, grey: off, red blinking: locked by iOS. */
+.ride-sound.beeps { color: var(--target); }
+.ride-sound.off { color: var(--muted); opacity: .6; }
+.ride-sound.locked { color: var(--danger); opacity: 1; animation: sound-locked 1.2s ease-in-out infinite; }
+@keyframes sound-locked { 50% { opacity: .35; } }
+/* Training screen on tablets: ride time, speaker and wrench at double size, easy to read and hit while
+   riding. Phones keep the small head so the chart keeps its height. */
+@media (min-width: 801px) {
+  .ride .chart-head-end { align-items: center; gap: 20px; }
+  .ride .chart-time { font-size: 36px; }
+  .ride .ride-sound .ico, .ride .ride-service .ico { width: 44px; height: 44px; }
+}
+.ride-service .ico { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .big-band { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr 1fr; gap: var(--gap); }
 .band-tile { display: flex; flex-direction: column; justify-content: center; min-width: 0; container-type: inline-size; }
 .band-num { font-size: min(15vh, 54cqi); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }

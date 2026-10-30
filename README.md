@@ -14,6 +14,7 @@ A training server and web app for the Kettler AX1 ergometer (Siemens cockpit, RS
 
 - **Live training:** power, target, cadence, pulse, speed, distance and energy, with a chart of the whole program and the part already ridden.
 - **Interval programs:** blocks of steps with fixed or ramped wattage; the server sets the load on the ergometer second by second. Four templates included, own programs in the editor.
+- **Cues:** 10 s before each step the iPad announces it („Noch 10 Sekunden, dann Erholung, 100 Watt“); where the power changes it also beeps at 3, 2, 1. The speaker button in the chart head switches between announcement and beeps, beeps only and off. iOS mutes the announcement in silent mode; the beeps still play.
 - **Elevation:** the power is turned into a climb (per rider weight), with a planned profile before the start and the ridden one during the ride.
 - **Riders:** several people with their own profile, history and chest strap.
 - **History and comparison:** every ride with its key figures, a detail view with all curves, and two rides side by side.

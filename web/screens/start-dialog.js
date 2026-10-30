@@ -3,6 +3,7 @@
 import { api } from '../lib/api.js';
 import { el } from '../lib/dom.js';
 import { duration } from '../lib/format.js';
+import { unlock as unlockSound } from '../lib/sound.js';
 import { programPath, scaleMax } from '../lib/chart.js';
 import { chartGrid, elevationStrip } from '../lib/chart-dom.js';
 import { describeBlocks, statsLine, historyText } from '../lib/start-preview.js';
@@ -74,6 +75,8 @@ export function openStartDialog(program, personId) {
 
   async function start() {
     if (busy) return;
+    // The tap on start lets the ride screen play its cues on iOS.
+    unlockSound();
     busy = true;
     startBtn.disabled = true;
     cancelBtn.disabled = true;

@@ -62,7 +62,13 @@ export function mount(root) {
     t.button = el('button', { type: 'button', class: 'tab', role: 'tab', 'aria-selected': 'false', onclick: () => show(t.id) }, t.label);
     bar.append(t.button);
   }
-  root.append(el('section', { class: 'page service' }, el('h1', {}, 'Service'), bar, holder));
+  // Opened from a running ride (the menu is hidden there): the way back.
+  const back = el('a', { href: '#/ride', class: 'btn primary', hidden: true }, 'Zurück zur Fahrt');
+  root.append(el('section', { class: 'page service' },
+    el('div', { class: 'page-head' }, el('h1', {}, 'Service'), back), bar, holder));
+  const onView = (view) => { back.hidden = !view.ride; };
+  if (live.current()) onView(live.current());
+  const offLive = live.onLive(onView);
 
   function show(id) {
     const next = tabs.find((t) => t.id === id) || tabs[0];
@@ -80,6 +86,7 @@ export function mount(root) {
 
   show(loadTab());
   return () => {
+    offLive();
     if (active) active.stop();
   };
 }

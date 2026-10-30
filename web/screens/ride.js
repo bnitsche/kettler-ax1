@@ -12,6 +12,8 @@ import { gradeText, recoveryNear, recoveryFinished } from '../lib/recovery.js';
 import { loadLines } from '../lib/lines.js';
 import { loadFinished } from '../lib/history.js';
 import { samplePulse, pulseSourceText } from '../lib/pulse.js';
+import { planCues, loadCueMode, saveCueMode, nextCueMode } from '../lib/cues.js';
+import * as sound from '../lib/sound.js';
 
 const CHART_W = 1000;
 const CHART_H = 200;
@@ -37,6 +39,16 @@ function takeExpectedRide() {
 }
 
 const svg = svgEl;
+
+const CUE_TITLES = { all: 'Ansage und Töne', beeps: 'Nur Töne', off: 'Ton aus' };
+
+/** Speaker icon: waves for "all", a single wave for "beeps", a cross for "off" and for locked sound. */
+function speakerPaths(mode, locked) {
+  const body = 'M4 9h4l5-4v14l-5-4H4z';
+  if (locked || mode === 'off') return [body, 'M17 9l5 6M22 9l-5 6'];
+  if (mode === 'beeps') return [body, 'M16.5 9.5a3.5 3.5 0 0 1 0 5'];
+  return [body, 'M16.5 9.5a3.5 3.5 0 0 1 0 5', 'M19 7a7 7 0 0 1 0 10'];
+}
 
 /** A stored sample as a chart point; `elevation` is the server's height for it (`RideDetail.elevation_m[i]`). */
 function sampleToPoint(s, elevation) {
@@ -123,10 +135,20 @@ export function mount(root) {
   const legend = legendToggles(chart, lines);
   const strip = elevationStrip({ width: CHART_W, height: STRIP_H });
   const keypadMark = el('span', { class: 'lbl keypad-mark', hidden: true }, 'Tasten');
+  // The menu is hidden while riding; the service page (e.g. chest strap state) stays reachable.
+  const serviceIcon = svg('svg', { class: 'ico', viewBox: '0 0 24 24', 'aria-hidden': 'true' });
+  serviceIcon.append(svg('path', { d: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8z' }));
+  const serviceLink = el('a', { href: '#/service', class: 'ride-service', title: 'Service', 'aria-label': 'Service' }, serviceIcon);
+  // Cues before power changes (program rides only); a tap cycles the mode and unlocks sound on iOS.
+  let cueMode = loadCueMode();
+  let cueState = null;
+  const soundIcon = svg('svg', { class: 'ico', viewBox: '0 0 24 24', 'aria-hidden': 'true' });
+  const soundBtn = el('button', { type: 'button', class: 'ride-sound', hidden: true, onclick: onSoundTap });
+  soundBtn.append(soundIcon);
   chart.append(
     el('div', { class: 'chart-head' },
       el('span', { class: 'lbl' }, chartTitle, ' – ', legend.node),
-      el('span', { class: 'chart-head-end' }, keypadMark, chartTime)),
+      el('span', { class: 'chart-head-end' }, keypadMark, chartTime, soundBtn, serviceLink)),
     chartBody,
     strip.node);
 
@@ -223,6 +245,39 @@ export function mount(root) {
     toast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toast.hidden = true; }, 3000);
+  }
+
+  function onSoundTap() {
+    // A tap on locked sound only unlocks it; otherwise it switches to the next mode.
+    if (cueMode !== 'off' && !sound.isUnlocked()) {
+      sound.unlock();
+    } else {
+      cueMode = nextCueMode(cueMode);
+      saveCueMode(cueMode);
+      if (cueMode !== 'off') sound.unlock();
+    }
+    renderSound();
+  }
+
+  function renderSound() {
+    const locked = cueMode !== 'off' && !sound.isUnlocked();
+    soundIcon.replaceChildren(...speakerPaths(cueMode, locked).map((d) => svg('path', { d })));
+    const title = locked ? 'Ton gesperrt – tippen zum Einschalten' : CUE_TITLES[cueMode];
+    soundBtn.title = title;
+    soundBtn.setAttribute('aria-label', title);
+    soundBtn.classList.toggle('locked', locked);
+    soundBtn.classList.toggle('off', cueMode === 'off');
+    soundBtn.classList.toggle('beeps', cueMode === 'beeps');
+  }
+
+  function playCues() {
+    const planned = planCues(cueState, ride.segments, ride.session);
+    cueState = planned.state;
+    if (cueMode === 'off') return;
+    for (const cue of planned.cues) {
+      if (cue.type === 'beep') sound.beep(cue.last);
+      else if (cueMode === 'all') sound.speak(cue.text);
+    }
   }
 
   function togglePause() {
@@ -443,6 +498,7 @@ export function mount(root) {
     hintStraps.hidden = !(view && view.strap_note === 'ambiguous');
     liveScreen.classList.toggle('paused', phase === 'Paused' || phase === 'AutoPaused');
     keypadMark.hidden = !(view && view.keypad);
+    soundBtn.hidden = !program;
 
     liveScreen.classList.toggle('big-view', big);
     const hintsHome = big ? bandWrap : rideMain;
@@ -479,6 +535,7 @@ export function mount(root) {
         points = [];
         recoveries = [];
         pending = [];
+        cueState = null;
         starting = null;
         ride = v.ride;
         mode = 'live';
@@ -490,6 +547,7 @@ export function mount(root) {
       }
       ride = v.ride;
       addLivePoint();
+      playCues();
       renderLive();
     } else if (rideId != null) {
       const ended = rideId;
@@ -513,7 +571,9 @@ export function mount(root) {
     live.onConnection(onConnection),
     // After a reconnect the server may have recorded samples we missed.
     live.onOpen(() => { if (rideId != null) loadTrace(); }),
+    sound.onUnlockChange(renderSound),
   ];
+  renderSound();
 
   if (starting) showStarting();
   const initial = live.current();
